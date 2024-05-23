@@ -1,17 +1,9 @@
 import oracle from "oracledb";
-import Product from "./Tables/Product.js";
-import Brand from "./Tables/Brand.js";
-import Proyecto from "./Tables/Proyecto.js";
-// import Cliente from "./Tables/Cliente.js";
-import Presupuesto from "./Tables/Presupuesto.js";
+import Statements from "./statements.js";
 
 class DatabaseManager {
   constructor(dbConfig) {
     this.dbConfig = dbConfig;
-    let Cliente = {};
-    Cliente.tableName = "CLIENTE";
-    this.tables = [Cliente];
-    // this.tables = [Brand, Product];
   }
 
   async migrate() {
@@ -21,39 +13,74 @@ class DatabaseManager {
       connection = await oracle.getConnection(this.dbConfig);
       console.log("Connection was successful");
 
-      // Drop all tables
-      for (let i = this.tables.length - 1; i >= 0; i--) {
-        console.log(`Dropping table ${this.tables[i].tableName}...`);
-        try {
-          await connection.execute(`
+      for (let key in Statements.drop) {
+        console.log(`Dropping ${key}...`);
+        let statement = "";
+        for (let entity in Statements.drop[key]) {
+          try {
+            if (key === "table") {
+              statement = `
               BEGIN
-                  EXECUTE IMMEDIATE 'DROP TABLE ${this.tables[i].tableName}';
+                EXECUTE IMMEDIATE 'drop ${key} ${Statements.drop[key][entity]} cascade constraints';
               EXCEPTION
-                  WHEN OTHERS THEN
-                      IF SQLCODE != -942 THEN
-                          RAISE;
-                      END IF;
-              END;
-          `);
-          console.log(
-            `Table ${this.tables[i].tableName} dropped successfully.`
-          );
-        } catch (err) {
-          console.error(`Error dropping table ${this.tables[i].tableName}`);
-          throw err;
+                WHEN OTHERS THEN
+                  IF SQLCODE != -942 THEN
+                    RAISE;
+                END IF;
+              END;`;
+              await connection.execute(statement);
+            } else if (key === "sequence") {
+              statement = `
+              BEGIN
+                EXECUTE IMMEDIATE 'drop ${key} ${Statements.drop[key][entity]}';
+              EXCEPTION
+                WHEN OTHERS THEN
+                  IF SQLCODE != -2289 THEN
+                    RAISE;
+                END IF;
+              END;`;
+              await connection.execute(statement);
+            } else if (key === "procedure") {
+              statement = `
+              BEGIN
+                EXECUTE IMMEDIATE 'drop ${key} ${Statements.drop[key][entity]}';
+              EXCEPTION
+                WHEN OTHERS THEN
+                  IF SQLCODE != -4043 THEN
+                    RAISE;
+                END IF;
+              END;`;
+              await connection.execute(statement);
+            } else if (key === "function") {
+              statement = `
+              BEGIN
+                EXECUTE IMMEDIATE 'drop ${key} ${Statements.drop[key][entity]}';
+              EXCEPTION
+                WHEN OTHERS THEN
+                  IF SQLCODE != -4043 THEN
+                    RAISE;
+                END IF;
+              END;`;
+              await connection.execute(statement);
+            }
+          } catch (err) {
+            console.error(`Error in statement: ${statement}`);
+            throw err;
+          }
         }
       }
 
-      for (const table of this.tables) {
-        console.log(`Performing migrations for ${table.tableName}...`);
-
-        try {
-          for (const statement of table.migrateStatements) {
+      for (let key in Statements.create) {
+        console.log(`Creating ${key}...`);
+        let statement = "";
+        for (let entity in Statements.create[key]) {
+          try {
+            statement = Statements.create[key][entity];
             await connection.execute(statement);
+          } catch (err) {
+            console.error(`Error in statement: ${statement}`);
+            throw err;
           }
-        } catch (err) {
-          console.error(`Error executing migration for ${table.tableName}`);
-          throw err;
         }
       }
 
@@ -61,8 +88,7 @@ class DatabaseManager {
       await connection.commit();
       console.log("Changes committed successfully.");
     } catch (err) {
-      console.error("Error during migration:", err);
-      await connection.rollback();
+      console.error(err);
     } finally {
       if (connection) {
         try {
@@ -74,23 +100,17 @@ class DatabaseManager {
       }
     }
   }
-
   async seed() {
-    console.log("Starting seeding...");
     let connection;
     try {
       connection = await oracle.getConnection(this.dbConfig);
       console.log("Connection was successful");
-
-      for (const table of this.tables) {
-        console.log(`Performing seeding for ${table.tableName}...`);
-
+      console.log("Starting seeding...");
+      for (let statement of Statements.seed) {
         try {
-          for (const statement of table.seedStatements) {
-            await connection.execute(statement);
-          }
+          await connection.execute(statement);
         } catch (err) {
-          console.error(`Error executing seeding for ${table.tableName}`);
+          console.error(`Error in statement: ${statement}`);
           throw err;
         }
       }
@@ -99,8 +119,7 @@ class DatabaseManager {
       await connection.commit();
       console.log("Changes committed successfully.");
     } catch (err) {
-      console.error("Error during seeding:", err);
-      await connection.rollback();
+      console.error(err);
     } finally {
       if (connection) {
         try {
@@ -112,7 +131,6 @@ class DatabaseManager {
       }
     }
   }
-
   async purge() {
     console.log("Starting purge...");
     let connection;
@@ -120,88 +138,67 @@ class DatabaseManager {
       connection = await oracle.getConnection(this.dbConfig);
       console.log("Connection was successful");
 
-      // what command to drop ALL tables?
-      let dropCommand = `BEGIN
-    FOR i IN (SELECT table_name FROM user_tables) LOOP
-      EXECUTE IMMEDIATE 'DROP TABLE ' || i.table_name || ' CASCADE CONSTRAINTS';
-    END LOOP;
-  END;`;
-
-      await connection.execute(dropCommand);
-
-      //   // Drop all tables
-      //   for (let i = this.tables.length - 1; i >= 0; i--) {
-      //     console.log(`Dropping table ${this.tables[i].tableName}...`);
-      //     try {
-      //       await connection.execute(`
-      //           BEGIN
-      //               EXECUTE IMMEDIATE 'DROP TABLE ${this.tables[i].tableName}';
-      //           EXCEPTION
-      //               WHEN OTHERS THEN
-      //                   IF SQLCODE != -942 THEN
-      //                       RAISE;
-      //                   END IF;
-      //           END;
-      //       `);
-      //       console.log(`Table ${this.tables[i].tableName} dropped successfully.`);
-      //     } catch (err) {
-      //       console.error(`Error dropping table ${this.tables[i].tableName}`);
-      //       throw err;
-      //     }
-      //   }
-
-      //   console.log("Please wait while we commit the changes.");
-      //   await connection.commit();
-      //   console.log("Changes committed successfully.");
-    } catch (err) {
-      console.error("Error during purge:", err);
-    } finally {
-      if (connection) {
-        try {
-          await connection.close();
-          console.log("Connection closed.");
-        } catch (err) {
-          console.error("Error closing connection:", err);
+      for (let key in Statements.drop) {
+        console.log(`Dropping ${key}...`);
+        let statement = "";
+        for (let entity in Statements.drop[key]) {
+          try {
+            if (key === "table") {
+              statement = `
+              BEGIN
+                EXECUTE IMMEDIATE 'drop ${key} ${Statements.drop[key][entity]} cascade constraints';
+              EXCEPTION
+                WHEN OTHERS THEN
+                  IF SQLCODE != -942 THEN
+                    RAISE;
+                END IF;
+              END;`;
+              await connection.execute(statement);
+            } else if (key === "sequence") {
+              statement = `
+              BEGIN
+                EXECUTE IMMEDIATE 'drop ${key} ${Statements.drop[key][entity]}';
+              EXCEPTION
+                WHEN OTHERS THEN
+                  IF SQLCODE != -2289 THEN
+                    RAISE;
+                END IF;
+              END;`;
+              await connection.execute(statement);
+            } else if (key === "procedure") {
+              statement = `
+              BEGIN
+                EXECUTE IMMEDIATE 'drop ${key} ${Statements.drop[key][entity]}';
+              EXCEPTION
+                WHEN OTHERS THEN
+                  IF SQLCODE != -4043 THEN
+                    RAISE;
+                END IF;
+              END;`;
+              await connection.execute(statement);
+            } else if (key === "function") {
+              statement = `
+              BEGIN
+                EXECUTE IMMEDIATE 'drop ${key} ${Statements.drop[key][entity]}';
+              EXCEPTION
+                WHEN OTHERS THEN
+                  IF SQLCODE != -4043 THEN
+                    RAISE;
+                END IF;
+              END;`;
+              await connection.execute(statement);
+            }
+          } catch (err) {
+            console.error(`Error in statement: ${statement}`);
+            throw err;
+          }
         }
       }
-    }
-  }
-
-  async migrateAndSeed() {
-    console.log("Starting transaction...");
-    let connection;
-    try {
-      connection = await oracle.getConnection(this.dbConfig);
-      console.log("Connection was successful");
-
-      for (const table of this.tables) {
-        console.log(`Performing migration for ${table.tableName}...`);
-        try {
-          for (const statement of table.migrateStatements) {
-            await connection.execute(statement);
-          }
-        } catch (err) {
-          console.error(`Error executing migration for ${table.tableName}`);
-          throw err;
-        }
-
-        console.log(`Performing seeding for ${table.tableName}...`);
-        try {
-          for (const statement of table.seedStatements) {
-            await connection.execute(statement);
-          }
-        } catch (err) {
-          console.error(`Error executing seeding for ${table.tableName}`);
-          throw err;
-        }
-      }
-
       console.log("Please wait while we commit the changes.");
       await connection.commit();
       console.log("Changes committed successfully.");
     } catch (err) {
-      console.error("Error during transaction:", err);
-      await connection.rollback();
+      console.error(err);
     } finally {
       if (connection) {
         try {
@@ -213,7 +210,6 @@ class DatabaseManager {
       }
     }
   }
-
   async fetch() {
     let connection;
     try {
@@ -222,7 +218,7 @@ class DatabaseManager {
 
       console.log(`Fetching data for...`);
       const result = await connection.execute(`SELECT * FROM CLIENTE`);
-      connection.commit()
+      connection.commit();
       console.log(result);
     } catch (err) {
       console.error("Error during fetch:", err);
@@ -282,22 +278,3 @@ class DatabaseManager {
 }
 
 export default DatabaseManager;
-
-// async function getNotes() {
-//   let conn;
-//   try {
-//     conn = await oracle.getConnection();
-//     const result = await conn.execute("SELECT * FROM NOTES");
-//     return result.rows;
-//   } catch (err) {
-//     console.error(err);
-//   } finally {
-//     if (conn) {
-//       try {
-//         await conn.close();
-//       } catch (err) {
-//         console.error(err);
-//       }
-//     }
-//   }
-// }

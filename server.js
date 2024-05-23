@@ -13,56 +13,61 @@ const dbConfig = {
 class Server {
   constructor() {
     this.app = express();
-    this.app.listen(3000, () => {
-      console.log(`Server is running at http://localhost:3000`);
-    });
-    this.startDatabaseConn();
-    setupRoutes(this.app);
+    this.init();
+  }
+
+  async init() {
+    try {
+      await this.startDatabaseConn();
+      this.app.listen(3000, () => {
+        console.log(`Server is running at http://localhost:3000`);
+      });
+      setupRoutes(this.app);
+    } catch (error) {
+      console.error("Failed to start the server:", error);
+    }
   }
   async startDatabaseConn() {
     try {
       await oracle.createPool(dbConfig);
       console.log("Connection pool started");
       process
-        .once("SIGTERM", this.closeDatabaseConn)
-        .once("SIGINT", this.closeDatabaseConn); // Close the connection pool on process termination
-    } catch (err) {
-      console.error(err);
+        .once("SIGTERM", this.closeDatabaseConn.bind(this))
+        .once("SIGINT", this.closeDatabaseConn.bind(this));
+    } catch (error) {
+      console.error("Failed to start the database connection:", error);
+      throw error; // Rethrow error to be caught in init()
     }
   }
 
   async closeDatabaseConn() {
     try {
       await oracle.getPool().close(10);
-      console.log("Pool closed");
+      console.log("Connection pool closed");
       process.exit(0);
     } catch (err) {
-      console.error(err.message);
+      console.error("Error closing the connection pool:", err);
       process.exit(1);
     }
   }
 }
 
 const args = process.argv.slice(2); // Extract command-line arguments
-
-// If the command-line argument is "migrate", run the migration
-if (args[0] === "migrate") {
-  const dbm = new DatabaseManager(dbConfig);
-  await dbm.migrate();
-} else if (args[0] === "seed") {
-  const dbm = new DatabaseManager(dbConfig);
-  await dbm.seed();
-} else if (args[0] === "migrate:seed") {
-  const dbm = new DatabaseManager(dbConfig);
-  await dbm.migrateAndSeed();
-} else if (args[0] === "purge") {
-  const dbm = new DatabaseManager(dbConfig);
-  await dbm.purge();
-} else if (args[0] === "fetch") {
-  const dbm = new DatabaseManager(dbConfig);
-  await dbm.fetch();
-}
-// Otherwise, start the server
-else {
-  const server = new Server();
+const dbm = new DatabaseManager(dbConfig);
+switch (args[0]) {
+  case "migrate":
+    dbm.migrate();
+    break;
+  case "purge":
+    dbm.purge();
+    break;
+  case "seed":
+    dbm.seed();
+    break;
+  case "fetch":
+    dbm.fetch();
+    break;
+  default:
+    new Server();
+    break;
 }
