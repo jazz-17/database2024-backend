@@ -1,0 +1,237 @@
+<aside class="z-10 shadow-xl w-1/6">
+  <div class="flex min-h-full flex-col">
+    <h1
+      class="text-xl text-center font-semibold text-slate-700 py-3 border-b-2"
+    >
+      Point of Sale
+    </h1>
+
+    <nav class="flex flex-col font-semibold text-gray-600">
+      <a href="/" class="font-semibold text-gray-700 p-4"> Inicio </a>
+      <!-- Maestros -->
+      <button
+        class="font-semibold text-gray-700 p-4 text-left flex justify-between"
+        onclick="toggleSubOptions('maestros'); this.querySelector('svg').classList.toggle('rotate-180')"
+      >
+        Maestros
+
+        <svg
+          class="transform"
+          xmlns="http://www.w3.org/2000/svg"
+          height="24px"
+          viewBox="0 -960 960 960"
+          width="24px"
+          fill="#4b5563"
+        >
+          <path d="M480-344 240-584l56-56 184 184 184-184 56 56-240 240Z" />
+        </svg>
+      </button>
+      <div class="pl-4 hidden" id="maestros">
+        <a href="/clientes" class="flex my-1 justify-start gap-2 items-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="20px"
+            viewBox="0 -960 960 960"
+            width="20px"
+            fill="#4b5563"
+          >
+            <path
+              d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"
+            />
+          </svg>
+          Cliente
+        </a>
+        <a href="/empleados" class="flex my-1 justify-start gap-2 items-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="20px"
+            viewBox="0 -960 960 960"
+            width="20px"
+            fill="#4b5563"
+          >
+            <path
+              d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"
+            />
+          </svg>
+          Empleado
+        </a>
+        <a
+          href="/empresas-venta"
+          class="flex my-1 justify-start gap-2 items-center"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="20px"
+            viewBox="0 -960 960 960"
+            width="20px"
+            fill="#4b5563"
+          >
+            <path
+              d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"
+            />
+          </svg>
+          Empresa Venta
+        </a>
+        <a
+          href="/proveedores"
+          class="flex my-1 justify-start gap-2 items-center"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="20px"
+            viewBox="0 -960 960 960"
+            width="20px"
+            fill="#4b5563"
+          >
+            <path
+              d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"
+            />
+          </svg>
+          Proveedor
+        </a>
+      </div>
+
+      <!-- Partidas -->
+      <button
+        class="font-semibold text-gray-700 p-4 text-left flex justify-between"
+        onclick="toggleSubOptions('partidas'); this.querySelector('svg').classList.toggle('rotate-180')"
+      >
+        Partidas
+        <svg
+          class="transform"
+          xmlns="http://www.w3.org/2000/svg"
+          height="24px"
+          viewBox="0 -960 960 960"
+          width="24px"
+          fill="#4b5563"
+        >
+          <path d="M480-344 240-584l56-56 184 184 184-184 56 56-240 240Z" />
+        </svg>
+      </button>
+      <div class="pl-4 hidden" id="partidas">
+        <a href="/" class="flex my-1 justify-start gap-2 items-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="20px"
+            viewBox="0 -960 960 960"
+            width="20px"
+            fill="#4b5563"
+          >
+            <path
+              d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"
+            />
+          </svg>
+          Lista
+        </a>
+        <a
+          href="/"
+          class="flex my-1 justify-start gap-2 items-center"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="20px"
+            viewBox="0 -960 960 960"
+            width="20px"
+            fill="#4b5563"
+          >
+            <path
+              d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"
+            />
+          </svg>
+          Crear
+        </a>
+      </div>
+
+      <!-- Proyectos -->
+      <button
+        class="font-semibold text-gray-700 p-4 text-left flex justify-between"
+        onclick="toggleSubOptions('proyectos'); this.querySelector('svg').classList.toggle('rotate-180')"
+      >
+        Proyectos
+        <svg
+          class="transform"
+          xmlns="http://www.w3.org/2000/svg"
+          height="24px"
+          viewBox="0 -960 960 960"
+          width="24px"
+          fill="#4b5563"
+        >
+          <path d="M480-344 240-584l56-56 184 184 184-184 56 56-240 240Z" />
+        </svg>
+      </button>
+      <div class="pl-4 hidden" id="proyectos">
+        <a href="/" class="flex my-1 justify-start gap-2 items-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="20px"
+            viewBox="0 -960 960 960"
+            width="20px"
+            fill="#4b5563"
+          >
+            <path
+              d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"
+            />
+          </svg>
+          Lista
+        </a>
+        <a
+          href="/"
+          class="flex my-1 justify-start gap-2 items-center"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="20px"
+            viewBox="0 -960 960 960"
+            width="20px"
+            fill="#4b5563"
+          >
+            <path
+              d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"
+            />
+          </svg>
+          Crear
+        </a>
+      </div>
+
+      <!-- Presupuestos -->
+      <a
+        href="/presupuestos"
+        class="font-semibold text-gray-700 p-4 text-left flex justify-between"
+      >
+        Presupuestos
+      </a>
+
+      <a
+        href="/ventas"
+        class="font-semibold text-gray-700 p-4 text-left flex justify-between"
+      >
+        Ventas
+      </a>
+      <a
+        href="/egresos"
+        class="font-semibold text-gray-700 p-4 text-left flex justify-between"
+      >
+        Egresos
+      </a>
+      <a
+        href="/flujo-de-caja"
+        class="font-semibold text-gray-700 p-4 text-left flex justify-between"
+      >
+        Flujo de Caja
+      </a>
+    </nav>
+  </div>
+</aside>
+<script>
+  function toggleSubOptions(id) {
+    let subOptions = document.getElementById(id);
+    // Toggle display of sub-options
+    if (subOptions.classList.contains("hidden")) {
+      subOptions.classList.remove("hidden");
+      subOptions.classList.add("block");
+    } else {
+      subOptions.classList.remove("block");
+      subOptions.classList.add("hidden");
+    }
+  }
+</script>

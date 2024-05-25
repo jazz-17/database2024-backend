@@ -1,73 +1,43 @@
-import express from "express";
-import oracle from "oracledb";
+import Express from "express";
 import DatabaseManager from "./database/manager.js";
-import setupRoutes from "./routes.js";
+import RoutesManager from "./routes.js";
 
-// Connection settings
-const dbConfig = {
-  user: "Prueba",
-  password: "123",
-  connectString: "localhost/xepdb1",
-};
 
 class Server {
   constructor() {
-    this.app = express();
-    this.init();
+    this.dbm = new DatabaseManager();
+    this.app = new Express(); 
+    this.rm = new RoutesManager(this.app, this.dbm);
   }
 
   async init() {
     try {
-      await this.startDatabaseConn();
-      this.app.listen(3000, () => {
-        console.log(`Server is running at http://localhost:3000`);
-      });
-      setupRoutes(this.app);
+      await this.dbm.startDatabaseConn();
+      this.rm.setup();
+      await this.app.listen(3000);
+      console.log(`Server is running at http://localhost:3000`);
     } catch (error) {
       console.error("Failed to start the server:", error);
     }
   }
-  async startDatabaseConn() {
-    try {
-      await oracle.createPool(dbConfig);
-      console.log("Connection pool started");
-      process
-        .once("SIGTERM", this.closeDatabaseConn.bind(this))
-        .once("SIGINT", this.closeDatabaseConn.bind(this));
-    } catch (error) {
-      console.error("Failed to start the database connection:", error);
-      throw error; // Rethrow error to be caught in init()
-    }
-  }
-
-  async closeDatabaseConn() {
-    try {
-      await oracle.getPool().close(10);
-      console.log("Connection pool closed");
-      process.exit(0);
-    } catch (err) {
-      console.error("Error closing the connection pool:", err);
-      process.exit(1);
-    }
-  }
 }
 
+let server = new Server();
 const args = process.argv.slice(2); // Extract command-line arguments
-const dbm = new DatabaseManager(dbConfig);
 switch (args[0]) {
   case "migrate":
-    dbm.migrate();
+    server.dbm.migrate();
     break;
   case "purge":
-    dbm.purge();
+    server.dbm.purge();
     break;
   case "seed":
-    dbm.seed();
+    server.dbm.seed();
     break;
   case "fetch":
-    dbm.fetch();
+    server.dbm.fetch();
     break;
   default:
-    new Server();
+    server.init();
     break;
 }

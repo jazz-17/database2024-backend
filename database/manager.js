@@ -1,68 +1,74 @@
 import oracle from "oracledb";
 import Statements from "./statements.js";
 
+// Connection settings
+const dbConfig = {
+  user: "Prueba",
+  password: "123",
+  connectString: "localhost/xepdb1",
+};
 class DatabaseManager {
-  constructor(dbConfig) {
-    this.dbConfig = dbConfig;
+  async startDatabaseConn() {
+    try {
+      await oracle.createPool(dbConfig);
+      console.log("Connection pool started");
+      process
+        .once("SIGTERM", this.closeDatabaseConn.bind(this))
+        .once("SIGINT", this.closeDatabaseConn.bind(this));
+    } catch (error) {
+      console.error("Failed to start the database connection:", error);
+      throw error; // Rethrow error to be caught in init()
+    }
   }
-
+  async closeDatabaseConn() {
+    try {
+      await oracle.getPool().close(10);
+      console.log("Connection pool closed");
+      process.exit(0);
+    } catch (err) {
+      console.error("Error closing the connection pool:", err);
+      process.exit(1);
+    }
+  }
   async migrate() {
     console.log("Starting migration...");
     let connection;
     try {
-      connection = await oracle.getConnection(this.dbConfig);
+      connection = await oracle.getConnection(dbConfig);
       console.log("Connection was successful");
 
-      for (let key in Statements.drop) {
+      for (let key in Statements["drop"]) {
         console.log(`Dropping ${key}...`);
         let statement = "";
-        for (let entity in Statements.drop[key]) {
+        let extra = "";
+        let code = 0;
+        for (let entity of Statements["drop"][key]) {
           try {
-            if (key === "table") {
-              statement = `
-              BEGIN
-                EXECUTE IMMEDIATE 'drop ${key} ${Statements.drop[key][entity]} cascade constraints';
-              EXCEPTION
-                WHEN OTHERS THEN
-                  IF SQLCODE != -942 THEN
-                    RAISE;
-                END IF;
-              END;`;
-              await connection.execute(statement);
-            } else if (key === "sequence") {
-              statement = `
-              BEGIN
-                EXECUTE IMMEDIATE 'drop ${key} ${Statements.drop[key][entity]}';
-              EXCEPTION
-                WHEN OTHERS THEN
-                  IF SQLCODE != -2289 THEN
-                    RAISE;
-                END IF;
-              END;`;
-              await connection.execute(statement);
-            } else if (key === "procedure") {
-              statement = `
-              BEGIN
-                EXECUTE IMMEDIATE 'drop ${key} ${Statements.drop[key][entity]}';
-              EXCEPTION
-                WHEN OTHERS THEN
-                  IF SQLCODE != -4043 THEN
-                    RAISE;
-                END IF;
-              END;`;
-              await connection.execute(statement);
-            } else if (key === "function") {
-              statement = `
-              BEGIN
-                EXECUTE IMMEDIATE 'drop ${key} ${Statements.drop[key][entity]}';
-              EXCEPTION
-                WHEN OTHERS THEN
-                  IF SQLCODE != -4043 THEN
-                    RAISE;
-                END IF;
-              END;`;
-              await connection.execute(statement);
+            switch (key) {
+              case "table":
+                extra = "cascade constraints";
+                code = -942;
+                break;
+              case "sequence":
+                code = -2289;
+                break;
+              case "procedure":
+              case "function":
+                code = -4043;
+                break;
+              default:
+                break;
             }
+            statement = `
+            BEGIN
+              EXECUTE IMMEDIATE 'drop ${key} ${entity} ${extra}';
+            EXCEPTION
+              WHEN OTHERS THEN
+                IF SQLCODE != ${code} THEN
+                  RAISE;
+              END IF;
+            END;`;
+            await connection.execute(statement);
           } catch (err) {
             console.error(`Error in statement: ${statement}`);
             throw err;
@@ -70,12 +76,12 @@ class DatabaseManager {
         }
       }
 
-      for (let key in Statements.create) {
+      for (let key in Statements["create"]) {
         console.log(`Creating ${key}...`);
         let statement = "";
-        for (let entity in Statements.create[key]) {
+        for (let entity in Statements["create"][key]) {
           try {
-            statement = Statements.create[key][entity];
+            statement = Statements["create"][key][entity];
             await connection.execute(statement);
           } catch (err) {
             console.error(`Error in statement: ${statement}`);
@@ -103,7 +109,7 @@ class DatabaseManager {
   async seed() {
     let connection;
     try {
-      connection = await oracle.getConnection(this.dbConfig);
+      connection = await oracle.getConnection(dbConfig);
       console.log("Connection was successful");
       console.log("Starting seeding...");
       for (let statement of Statements.seed) {
@@ -111,6 +117,7 @@ class DatabaseManager {
           await connection.execute(statement);
         } catch (err) {
           console.error(`Error in statement: ${statement}`);
+          // console.error("Error in statement: ", statement);
           throw err;
         }
       }
@@ -135,59 +142,41 @@ class DatabaseManager {
     console.log("Starting purge...");
     let connection;
     try {
-      connection = await oracle.getConnection(this.dbConfig);
+      connection = await oracle.getConnection(dbConfig);
       console.log("Connection was successful");
 
-      for (let key in Statements.drop) {
+      for (let key in Statements["drop"]) {
         console.log(`Dropping ${key}...`);
         let statement = "";
-        for (let entity in Statements.drop[key]) {
+        let extra = "";
+        let code = 0;
+        for (let entity of Statements["drop"][key]) {
           try {
-            if (key === "table") {
-              statement = `
-              BEGIN
-                EXECUTE IMMEDIATE 'drop ${key} ${Statements.drop[key][entity]} cascade constraints';
-              EXCEPTION
-                WHEN OTHERS THEN
-                  IF SQLCODE != -942 THEN
-                    RAISE;
-                END IF;
-              END;`;
-              await connection.execute(statement);
-            } else if (key === "sequence") {
-              statement = `
-              BEGIN
-                EXECUTE IMMEDIATE 'drop ${key} ${Statements.drop[key][entity]}';
-              EXCEPTION
-                WHEN OTHERS THEN
-                  IF SQLCODE != -2289 THEN
-                    RAISE;
-                END IF;
-              END;`;
-              await connection.execute(statement);
-            } else if (key === "procedure") {
-              statement = `
-              BEGIN
-                EXECUTE IMMEDIATE 'drop ${key} ${Statements.drop[key][entity]}';
-              EXCEPTION
-                WHEN OTHERS THEN
-                  IF SQLCODE != -4043 THEN
-                    RAISE;
-                END IF;
-              END;`;
-              await connection.execute(statement);
-            } else if (key === "function") {
-              statement = `
-              BEGIN
-                EXECUTE IMMEDIATE 'drop ${key} ${Statements.drop[key][entity]}';
-              EXCEPTION
-                WHEN OTHERS THEN
-                  IF SQLCODE != -4043 THEN
-                    RAISE;
-                END IF;
-              END;`;
-              await connection.execute(statement);
+            switch (key) {
+              case "table":
+                extra = "cascade constraints";
+                code = -942;
+                break;
+              case "sequence":
+                code = -2289;
+                break;
+              case "procedure":
+              case "function":
+                code = -4043;
+                break;
+              default:
+                break;
             }
+            statement = `
+            BEGIN
+              EXECUTE IMMEDIATE 'drop ${key} ${entity} ${extra}';
+            EXCEPTION
+              WHEN OTHERS THEN
+                IF SQLCODE != ${code} THEN
+                  RAISE;
+              END IF;
+            END;`;
+            await connection.execute(statement);
           } catch (err) {
             console.error(`Error in statement: ${statement}`);
             throw err;
@@ -213,13 +202,24 @@ class DatabaseManager {
   async fetch() {
     let connection;
     try {
-      connection = await oracle.getConnection(this.dbConfig);
+      connection = await oracle.getConnection(dbConfig);
       console.log("Connection was successful");
 
-      console.log(`Fetching data for...`);
-      const result = await connection.execute(`SELECT * FROM CLIENTE`);
-      connection.commit();
-      console.log(result);
+      let counter = 0;
+      for (let table of Statements["drop"]["table"]) {
+        console.log(`Fetching data for ${table}...`);
+        try {
+          const result = await connection.execute(`SELECT * FROM ${table}`);
+          console.log(result.rows);
+          counter++;
+          if (counter > 4) {
+            break;
+          }
+        } catch (err) {
+          console.error(`Error fetching data for ${table}`);
+          throw err;
+        }
+      }
     } catch (err) {
       console.error("Error during fetch:", err);
     } finally {
@@ -234,32 +234,18 @@ class DatabaseManager {
     }
   }
 
-  async fetchJsonAndSendToFronted() {
+  /**************************/
+  /* Api controller methods */
+  /**************************/
+  async getProyectos() {
+    console.log("Fetching projects...");
     let connection;
-    let result;
     try {
-      connection = await oracle.getConnection(this.dbConfig);
-      console.log("Connection was successful");
-
-      console.log(`Fetching data for ${this.tables[1].tableName}...`);
-      try {
-        result = await connection.execute(
-          `SELECT * FROM ${this.tables[1].tableName}`
-        );
-      } catch (err) {
-        console.error(`Error fetching data for ${this.tables[1].tableName}`);
-        throw err;
-      }
-
-      // for (const table of this.tables) {
-      //   console.log(`Fetching data for ${table.tableName}...`);
-      //   try {
-      //     result = await connection.execute(`SELECT * FROM ${table.tableName}`);
-      //   } catch (err) {
-      //     console.error(`Error fetching data for ${table.tableName}`);
-      //     throw err;
-      //   }
-      // }
+      // Get a connection from the default pool
+      connection = await oracle.getConnection(dbConfig);
+      const result = await connection.execute(`SELECT CodCIA, NombPyto, EmplJefeProy, CodCliente, CodCia1, FecReg, CodFase, CodNivel, CodFuncion FROM Proyecto`);
+      
+      return result.rows;
     } catch (err) {
       console.error("Error during fetch:", err);
     } finally {
@@ -267,8 +253,6 @@ class DatabaseManager {
         try {
           await connection.close();
           console.log("Connection closed.");
-          result = JSON.stringify(result.rows);
-          return result;
         } catch (err) {
           console.error("Error closing connection:", err);
         }
