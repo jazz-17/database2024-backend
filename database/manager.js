@@ -255,7 +255,6 @@ class DatabaseManager {
           console.log("Connection closed.");
         } catch (err) {
           console.error("Error closing connection:", err);
-          console.error("mitu cabro");
         }
       }
     }
