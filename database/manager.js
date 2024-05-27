@@ -127,6 +127,7 @@ class DatabaseManager {
           throw err;
         }
       }
+      console.log();
       for (let statement of create_foreign_key) {
         try {
           await connection.execute(statement);
