@@ -1,7 +1,7 @@
-import path from "path";
 import express from "express";
-import url from "url";
-const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
+// import path from "path";
+// import url from "url";
+// const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 
 class RoutesManager {
   constructor(app, dbm) {
@@ -11,36 +11,30 @@ class RoutesManager {
 
   setup() {
     this.app.set("view engine", "ejs");
-    // Serve static files from the views directory
-    this.app.use(express.static(path.join(__dirname, "views")));
+    // this.app.use(express.static(path.join(__dirname, "views")));
+    this.app.use(express.static("views"));
     this.setupAPIRoutes();
     this.setupHTMLRoutes();
   }
   setupHTMLRoutes() {
     // Define routes for each HTML file in their respective folders
-    this.app.get("/", (req, res) => {
-      res.render(path.join(__dirname, "views", "inicio", "index")); // Path: views/inicio/index.ejs
+    this.app.get("/", async (req, res) => {
+      let proyectos = await this.dbm.getProyectos();
+      console.log(proyectos);
+      res.render("inicio/index.ejs", { proyectos: proyectos });
     });
 
     this.app.get("/clientes", (req, res) => {
-      res.render(
-        path.join(__dirname, "views", "maestros", "clientes", "index")
-      ); // Path: views/maestros/index.ejs
+      res.render("maestros/clientes/index.ejs");
     });
     this.app.get("/empleados", (req, res) => {
-      res.render(
-        path.join(__dirname, "views", "maestros", "empleados", "index")
-      ); // Path: views/maestros/index.ejs
+      res.render("maestros/empleados/index.ejs");
     });
     this.app.get("/empresas-venta", (req, res) => {
-      res.render(
-        path.join(__dirname, "views", "maestros", "empresas-venta", "index")
-      ); // Path: views/maestros/index.ejs
+      res.render("maestros/empresas-venta/index.ejs");
     });
     this.app.get("/proveedores", (req, res) => {
-      res.render(
-        path.join(__dirname, "views", "maestros", "proveedores", "index")
-      );
+      res.render("maestros/proveedores/index.ejs");
     });
 
     // this.app.get("/partidas", (req, res) => {
@@ -50,18 +44,17 @@ class RoutesManager {
     //   res.render(path.join(__dirname, "views", "proyectos", "index"));
     // });
     this.app.get("/presupuestos", (req, res) => {
-      res.render(path.join(__dirname, "views", "presupuestos", "index"));
+      res.render("presupuestos/index.ejs");
     });
     this.app.get("/ventas", (req, res) => {
-      res.render(path.join(__dirname, "views", "ventas", "index"));
+      res.render("ventas/index.ejs");
     });
     this.app.get("/egresos", (req, res) => {
-      res.render(path.join(__dirname, "views", "egresos", "index"));
+      res.render("egresos/index.ejs");
     });
     this.app.get("/flujo-de-caja", (req, res) => {
-      res.render(path.join(__dirname, "views", "flujo-de-caja", "index"));
+      res.render("flujo-de-caja/index.ejs");
     });
-    //how to ad 404 page?
     this.app.get("*", (req, res) => {
       res.send("404 Page not found");
     });
