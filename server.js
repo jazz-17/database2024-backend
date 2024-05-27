@@ -24,7 +24,6 @@ class Server {
 
 let server = new Server();
 
-
 const args = process.argv.slice(2); // Extract command-line arguments
 switch (args[0]) {
   case "migrate":

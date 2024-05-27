@@ -11,7 +11,6 @@ class RoutesManager {
 
   setup() {
     this.app.set("view engine", "ejs");
-    // this.app.use(express.static(path.join(__dirname, "views")));
     this.app.use(express.static("views"));
     this.setupAPIRoutes();
     this.setupHTMLRoutes();
@@ -20,7 +19,6 @@ class RoutesManager {
     // Define routes for each HTML file in their respective folders
     this.app.get("/", async (req, res) => {
       let proyectos = await this.dbm.getProyectos();
-      console.log(proyectos);
       res.render("inicio/index.ejs", { proyectos: proyectos });
     });
 
