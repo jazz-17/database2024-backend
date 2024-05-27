@@ -3,7 +3,7 @@ import Statements from "./statements.js";
 
 // Connection settings
 const dbConfig = {
-  user: "Prueba",
+  user: "sistema",
   password: "123",
   connectString: "localhost/xepdb1",
 };
@@ -255,6 +255,7 @@ class DatabaseManager {
           console.log("Connection closed.");
         } catch (err) {
           console.error("Error closing connection:", err);
+          console.error("mitu cabro");
         }
       }
     }
