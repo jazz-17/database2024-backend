@@ -14,8 +14,8 @@ import {
   seed,
 } from "./statements.js";
 // Connection settings
-let dbConfig = {
-  user: "Prueba",
+const dbConfig = {
+  user: "sistema",
   password: "123",
   connectString: "localhost/xepdb1",
 };
