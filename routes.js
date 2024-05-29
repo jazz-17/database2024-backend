@@ -17,22 +17,29 @@ class RoutesManager {
   }
   setupHTMLRoutes() {
     // Define routes for each HTML file in their respective folders
-    this.app.get("/", async (req, res) => {
-      let proyectos = await this.dbm.getProyectos();
-      res.render("inicio/index.ejs", { proyectos: proyectos });
+    this.app.get("/", (req, res) => {
+      res.render("inicio/index.ejs");
     });
 
-    this.app.get("/clientes", (req, res) => {
-      res.render("maestros/clientes/index.ejs");
+    this.app.get("/clientes", async (req, res) => {
+      let clientes = await this.dbm.getClientes();
+      res.render("maestros/clientes/index.ejs", { clientes: clientes });
     });
-    this.app.get("/empleados", (req, res) => {
-      res.render("maestros/empleados/index.ejs");
+    this.app.get("/empleados", async (req, res) => {
+      let empleados = await this.dbm.getEmpleados();
+      res.render("maestros/empleados/index.ejs", { empleados: empleados });
     });
-    this.app.get("/empresas-venta", (req, res) => {
-      res.render("maestros/empresas-venta/index.ejs");
+    this.app.get("/empresas-venta", async (req, res) => {
+      let empresasVenta = await this.dbm.getEmpresasVenta();
+      res.render("maestros/empresas-venta/index.ejs", {
+        empresasVenta: empresasVenta,
+      });
     });
-    this.app.get("/proveedores", (req, res) => {
-      res.render("maestros/proveedores/index.ejs");
+    this.app.get("/proveedores", async (req, res) => {
+      let proveedores = await this.dbm.getProveedores();
+      res.render("maestros/proveedores/index.ejs", {
+        proveedores: proveedores,
+      });
     });
 
     // this.app.get("/partidas", (req, res) => {
