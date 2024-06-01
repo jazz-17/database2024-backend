@@ -105,21 +105,21 @@
   </body>
   <script>
     async function createClient() {
-      let desPersona = document.getElementById("desPersona");
-      let nroRuc = document.getElementById("nroRuc");
-      let desCorta = document.getElementById("desCorta");
-      let desAlterna = document.getElementById("desAlterna");
+      let desPersona = document.getElementById("desPersona").value;
+      let nroRuc = document.getElementById("nroRuc").value;
+      let desCorta = document.getElementById("desCorta").value;
+      let desAlterna = document.getElementById("desAlterna").value;
 
-      const response = await fetch("/nuevo-cliente", {
+      let response = await fetch("/nuevo-cliente", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          desPersona: desPersona.value,
-          nroRuc: nroRuc.value,
-          desCorta: desCorta.value,
-          desAlterna: desAlterna.value,
+          desPersona,
+          nroRuc,
+          desCort,
+          desAlterna,
         }),
       });
       if (response.ok) {
@@ -131,7 +131,7 @@
     }
     async function deleteClient(codigo) {
       console.log("Deleting client", codigo);
-      const response = await fetch("/eliminar-cliente", {
+      let response = await fetch("/eliminar-cliente", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
