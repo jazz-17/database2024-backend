@@ -1,0 +1,5 @@
+{
+  "user": "sistema",
+  "password": "123",
+  "connectString": "localhost/xepdb1"
+}

@@ -13,12 +13,7 @@ import {
   create_function,
   seed,
 } from "./statements.js";
-// Connection settings
-const dbConfig = {
-  user: "sistema",
-  password: "123",
-  connectString: "localhost/xepdb1",
-};
+import dbConfig from '../config.json' assert { type: 'json' };
 class DatabaseManager {
   async startDatabaseConn() {
     try {
@@ -336,112 +331,6 @@ class DatabaseManager {
         try {
           await connection.close();
           console.log("Connection closed.");
-        } catch (err) {
-          console.error("Error closing connection:", err);
-        }
-      }
-    }
-  }
-
-  /**************************/
-  /* Custom database queries */
-  /**************************/
-  async getProyectos() {
-    let connection;
-    try {
-      // Get a connection from the default pool
-      connection = await oracle.getConnection(dbConfig);
-      let result = await connection.execute(
-        `SELECT CodCIA, NombPyto, EmplJefeProy, CodCliente, CodCia1, FecReg, CodFase, CodNivel, CodFuncion FROM Proyecto`
-      );
-      return result.rows;
-    } catch (err) {
-      console.error("Error during fetch:", err);
-    } finally {
-      if (connection) {
-        try {
-          await connection.close();
-        } catch (err) {
-          console.error("Error closing connection:", err);
-        }
-      }
-    }
-  }
-  async getClientes() {
-    let connection;
-    try {
-      connection = await oracle.getConnection(dbConfig);
-      let result = await connection.execute(
-        `SELECT CODCLIENTE, DESPERSONA, NRORUC FROM CLIENTE INNER JOIN PERSONA ON CLIENTE.CODCLIENTE = PERSONA.CODPERSONA`
-      );
-      return result.rows;
-    } catch (err) {
-      console.error("Error during fetch:", err);
-    } finally {
-      if (connection) {
-        try {
-          await connection.close();
-        } catch (err) {
-          console.error("Error closing connection:", err);
-        }
-      }
-    }
-  }
-  async getEmpleados(){
-    let connection;
-    try {
-      connection = await oracle.getConnection(dbConfig);
-      let result = await connection.execute(
-        `SELECT DESPERSONA, DIRECC, CELULAR, HOBBY FROM EMPLEADO INNER JOIN PERSONA ON EMPLEADO.CODEMPLEADO = PERSONA.CODPERSONA`
-      );
-      console.log(result.rows);
-      return result.rows;
-    } catch (err) {
-      console.error("Error during fetch:", err);
-    } finally {
-      if (connection) {
-        try {
-          await connection.close();
-        } catch (err) {
-          console.error("Error closing connection:", err);
-        }
-      }
-    }
-  }
-  async getProveedores(){
-    let connection;
-    try {
-      connection = await oracle.getConnection(dbConfig);
-      let result = await connection.execute(
-        `SELECT CODPROVEEDOR,DESPERSONA, NRORUC FROM PROVEEDOR INNER JOIN PERSONA ON PROVEEDOR.CODPROVEEDOR = PERSONA.CODPERSONA`
-      );
-      return result.rows;
-    } catch (err) {
-      console.error("Error during fetch:", err);
-    } finally {
-      if (connection) {
-        try {
-          await connection.close();
-        } catch (err) {
-          console.error("Error closing connection:", err);
-        }
-      }
-    }
-  }
-  async getEmpresasVenta(){
-    let connection;
-    try {
-      connection = await oracle.getConnection(dbConfig);
-      let result = await connection.execute(
-        `SELECT CIACONTRATA, DESPERSONA, NRORUC FROM EMPRESA_VTA INNER JOIN PERSONA ON EMPRESA_VTA.CIACONTRATA = PERSONA.CODPERSONA`
-      );
-      return result.rows;
-    } catch (err) {
-      console.error("Error during fetch:", err);
-    } finally {
-      if (connection) {
-        try {
-          await connection.close();
         } catch (err) {
           console.error("Error closing connection:", err);
         }
