@@ -6,10 +6,20 @@ class Cliente {
     let connection;
     try {
       connection = await oracle.getConnection(dbConfig);
-      let result = await connection.execute(
+      const result = await connection.execute(
         `SELECT CODCLIENTE, DESPERSONA, NRORUC FROM CLIENTE INNER JOIN PERSONA ON CLIENTE.CODCLIENTE = PERSONA.CODPERSONA`
       );
-      return result.rows;
+      const headers = result.metaData.map((header) => header.name);
+      const rows = result.rows;
+      const clientes = [];
+      rows.forEach((row) => {
+        let cliente = {};
+        row.forEach((column, index) => {
+          cliente[headers[index]] = column;
+        });
+        clientes.push(cliente);
+      });
+      return clientes;
     } catch (err) {
       console.error("Error during fetch:", err);
     } finally {

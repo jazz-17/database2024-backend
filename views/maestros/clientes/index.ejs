@@ -4,8 +4,10 @@
   <body class="flex">
     <%- include ('../../partials/sidebar') %>
     <main
+      id="app"
       class="flex flex-grow flex-col gap-8 bg-gray-100 p-8 text-xl font-semibold"
     >
+      <%- include ('../../partials/modal') %>
       <div class="flex flex-col gap-4">
         <div class="bg-white rounded-md shadow-sm p-8">
           <h1 class="text-2xl font-bold mb-6">Clientes</h1>
@@ -22,24 +24,30 @@
               </tr>
             </thead>
             <tbody>
-              <% for(let cliente of clientes) {%>
-              <tr class="border-b bg-white hover:bg-gray-100">
-                <% for(let cell of cliente) { %>
+              <tr
+                v-for="cliente of clientes"
+                class="border-b bg-white hover:bg-gray-100"
+              >
+                <td class="px-4 py-3">{{ cliente.CODCLIENTE }}</td>
+                <td class="px-4 py-3">{{ cliente.DESPERSONA }}</td>
+                <td class="px-4 py-3">{{ cliente.NRORUC }}</td>
 
-                <td class="px-4 py-3"><%= cell %></td>
-                <% } %>
                 <td class="py-3">
-                  <button class="text-blue-500">Editar</button>
+                  <button
+                    @click="editClient(cliente.CODCLIENTE)"
+                    class="text-blue-500"
+                  >
+                    Editar
+                  </button>
                 </td>
                 <td class="py-3">
                   <button
-                    onclick="deleteClient('<%= cliente[0] %>')"
+                    @click="deleteClient(cliente.CODCLIENTE)"
                     class="text-red-500"
                   >
                     Eliminar
                   </button>
                 </td>
-                <% } %>
               </tr>
             </tbody>
           </table>
@@ -101,54 +109,81 @@
           </button>
         </div>
       </div>
+      <div class="flex">
+        <button @click="modalVisible = true">show modal</button>
+      </div>
     </main>
   </body>
   <script>
-    async function createClient() {
-      let desPersona = document.getElementById("desPersona").value;
-      let nroRuc = document.getElementById("nroRuc").value;
-      let desCorta = document.getElementById("desCorta").value;
-      let desAlterna = document.getElementById("desAlterna").value;
+    const { createApp } = Vue;
+    createApp({
+      data() {
+        return {
+          clientes: <%- clientes %>,
+          modalVisible: false,
+        };
+      },
+      mounted() {
+        const modalContent = document.getElementById("modal-content");
+        modalContent.innerHTML = "<h1>Modal content</h1>";
+        document.addEventListener("keydown", this.handleEscKey);
+      },
+      beforeDestroy() {
+        document.removeEventListener("keydown", this.handleEscKey);
+      },
+      methods: {
+        async createClient() {
+          let desPersona = document.getElementById("desPersona").value;
+          let nroRuc = document.getElementById("nroRuc").value;
+          let desCorta = document.getElementById("desCorta").value;
+          let desAlterna = document.getElementById("desAlterna").value;
 
-      let response = await fetch("/nuevo-cliente", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+          let response = await fetch("/nuevo-cliente", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              desPersona,
+              nroRuc,
+              desCorta,
+              desAlterna,
+            }),
+          });
+          if (response.ok) {
+            alert("Cliente creado correctamente!");
+            window.location.reload();
+          } else {
+            alert("Error al crear cliente. Intente nuevamente.");
+          }
         },
-        body: JSON.stringify({
-          desPersona,
-          nroRuc,
-          desCorta,
-          desAlterna,
-        }),
-      });
-      if (response.ok) {
-        alert("Cliente creado correctamente!");
-        window.location.reload();
-      } else {
-        alert("Error al crear cliente. Intente nuevamente.");
-      }
-    }
-    async function deleteClient(codigo) {
-      console.log("Deleting client", codigo);
-      let response = await fetch("/eliminar-cliente", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+        async deleteClient(codigo) {
+          console.log("Deleting client", codigo);
+          let response = await fetch("/eliminar-cliente", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ codigo: codigo }),
+          });
+          if (response.ok) {
+            alert("Cliente eliminado correctamente!");
+            window.location.reload();
+          } else {
+            alert(
+              "Error. Hay registros asociados con esta persona que deben eliminarse primero."
+            );
+          }
         },
-        body: JSON.stringify({ codigo: codigo }),
-      });
-      if (response.ok) {
-        alert("Cliente eliminado correctamente!");
-        window.location.reload();
-      } else {
-        alert(
-          "Error. Hay registros asociados con esta persona que deben eliminarse primero."
-        );
-      }
-    }
-    async function editClient(codigo) {
-      console.log("Editing client", codigo);
-    }
+        async editClient(codigo) {
+          console.log("Editing client", codigo);
+        },
+        handleEscKey(event) {
+          if (event.key === "Escape") {
+            this.modalVisible = false;
+          }
+        },
+      },
+    }).mount("#app");
   </script>
 </html>

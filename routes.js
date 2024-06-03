@@ -4,9 +4,6 @@ import Cliente from "./controller/cliente.js";
 import Empleado from "./controller/empleado.js";
 import EmpresaVenta from "./controller/empresa-venta.js";
 import Proveedor from "./controller/proveedor.js";
-// import path from "path";
-// import url from "url";
-// const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 
 class RoutesManager {
   constructor(app, dbm) {
@@ -30,7 +27,8 @@ class RoutesManager {
 
     /* RUTAS DE CLIENTES */
     this.app.get("/clientes", async (req, res) => {
-      let clientes = await Cliente.index();
+      let clientes = (await Cliente.index()) ?? {};
+      clientes = JSON.stringify(clientes);
       res.render("maestros/clientes/index.ejs", { clientes: clientes });
     });
     this.app.post("/nuevo-cliente", async (req, res) => {
