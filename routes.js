@@ -45,7 +45,6 @@ class RoutesManager {
     });
     this.app.post("/eliminar-cliente", async (req, res) => {
       let { codigo } = req.body;
-      console.log("CLIENT CODE ROUTE IN ROUTES IS:", codigo)
       try {
         await Cliente.delete(codigo);
         res.status(200).send("Cliente eliminado correctamente");
