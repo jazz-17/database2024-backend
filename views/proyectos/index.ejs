@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+  <%- include ('../partials/head') %>
+  <body class="flex">
+    <%- include ('../partials/sidebar') %>
+    <main
+      id="app"
+      class="flex flex-grow flex-col gap-8 bg-gray-100 p-8 text-xl font-semibold"
+    >
+      <%- include ('../partials/modal') %>
+      <div class="flex flex-col gap-4">
+        <div class="bg-white rounded-md shadow-sm p-8">
+          <h1 class="text-2xl font-bold mb-6">Proyectos</h1>
+          <table
+            class="mt-3 min-h-[150px] w-full text-nowrap text-left text-sm text-gray-500"
+          >
+            <thead class="bg-gray-100 text-sm uppercase text-gray-600">
+              <tr>
+                <th class="px-4 py-3">Código</th>
+                <th class="px-4 py-3">Descripción</th>
+                <th class="px-4 py-3">Costo total</th>
+                <th class="px-4 py-3"></th>
+                <th class="px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="proyecto of proyectos"
+                class="border-b bg-white hover:bg-gray-100"
+              >
+                <td class="px-4 py-3">{{ proyecto.CODPYTO }}</td>
+                <td class="px-4 py-3">{{ proyecto.NOMBPYTO }}</td>
+                <td class="px-4 py-3">{{ proyecto.COSTOTOTAL }}</td>
+
+                <td class="py-3">
+                  <button
+                    @click="editClient(proyecto.CODPYTO)"
+                    class="text-blue-500"
+                  >
+                    Editar
+                  </button>
+                </td>
+                <td class="py-3">
+                  <button
+                    @click="deleteClient(proyecto.CODPYTO)"
+                    class="text-red-500"
+                  >
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="overflow-x-auto"></div>
+        </div>
+      </div>     
+    </main>
+  </body>
+  <script>
+    const { createApp } = Vue;
+    createApp({
+      data() {
+        return {
+          proyectos: <%- proyectos %>,
+          modalVisible: false,
+        };
+      },
+      mounted() {
+        const modalContent = document.getElementById("modal-content");
+        modalContent.innerHTML = "<h1>Modal content</h1>";
+        document.addEventListener("keydown", this.handleEscKey);
+      },
+      beforeDestroy() {
+        document.removeEventListener("keydown", this.handleEscKey);
+      },
+      methods: {
+        async createClient() {
+          let desPersona = document.getElementById("desPersona").value;
+          let nroRuc = document.getElementById("nroRuc").value;
+          let desCorta = document.getElementById("desCorta").value;
+          let desAlterna = document.getElementById("desAlterna").value;
+
+          let response = await fetch("/nuevo-cliente", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              desPersona,
+              nroRuc,
+              desCorta,
+              desAlterna,
+            }),
+          });
+          if (response.ok) {
+            alert("Cliente creado correctamente!");
+            window.location.reload();
+          } else {
+            alert("Error al crear cliente. Intente nuevamente.");
+          }
+        },
+        async deleteClient(codigo) {
+          let response = await fetch("/eliminar-proyecto", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ codigo: codigo }),
+          });
+          if (response.ok) {
+            alert("Proyecto eliminado correctamente!");
+            window.location.reload();
+          } else {
+            alert(
+              "Error. Hay registros asociados con este proyecto que deben eliminarse primero."
+            );
+          }
+        },
+        async editClient(codigo) {
+          console.log("Editing client", codigo);
+        },
+        handleEscKey(event) {
+          if (event.key === "Escape") {
+            this.modalVisible = false;
+          }
+        },
+      },
+    }).mount("#app");
+  </script>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+  <%- include ('../partials/head') %>
+  <body class="flex">
+    <%- include ('../partials/sidebar') %>
+    <main
+      id="app"
+      class="flex flex-grow gap-8 bg-gray-50 p-8  text-gray-700 font-semibold"
+    >
+      <%- include ('../partials/modal') %>
+      <div class="flex flex-col gap-4 w-1/3 h-full">
+        <div
+          class="bg-white p-8 border border-gray rounded-md shadow-sm h-full"
+        >
+          <h1 class="text-2xl font-bold">Categorías</h1>
+          <ul class="max-w-md divide-y divide-gray-200 pt-4">
+            <button
+              v-for="categoria of categorias"
+              @click="titulos = categoria.TITULOS"
+              :key="categoria.ID"
+              class="text-left w-full py-2 rounded"
+            > 
+              {{ categoria.DESCRIPCION }}
+            </button>
+          </ul>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-4 w-2/3 h-full">
+        <div class="bg-white p-8  border border-gray rounded-md shadow-sm h-full">
+          <table
+            class="min-h-[150px] w-full text-nowrap text-left text-sm text-gray-500"
+          >
+            <thead class="bg-gray-100 text-sm uppercase text-gray-600">
+              <tr>
+                <th class="px-4 py-3">Código</th>
+                <th class="px-4 py-3">Descripción</th>
+                <th class="px-4 py-3"></th>
+                <th class="px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody v-if="titulos.length > 0">
+              <tr
+                v-for="titulo of titulos"
+                class="border-b bg-white hover:bg-gray-100"
+              >
+                <td class="px-4 py-3">{{ titulo.COD_TITULO }}</td>
+                <td class="px-4 py-3">{{ titulo.DESCRIPCION }}</td>
+
+                <td class="py-3">
+                  <button
+                    @click="editClient(titulo.CODCLIENTE)"
+                    class="text-blue-500"
+                  >
+                    Editar
+                  </button>
+                </td>
+                <td class="py-3">
+                  <button
+                    @click="deleteClient(titulo.CODCLIENTE)"
+                    class="text-red-500"
+                  >
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- <div>
+        <button @click="modalVisible=true">click</button>
+      </div> -->
+    </main>
+  </body>
+  <script>
+    const { createApp } = Vue;
+    createApp({
+      data() {
+        return {
+          categorias: <%- categorias %>,
+          modalVisible: false,
+          titulos : [],
+        };
+      },
+      mounted() {
+        console.log(this.categorias);
+        const modalContent = document.getElementById("modal-content");
+        modalContent.innerHTML = "<h1>Modal content</h1>";
+        document.addEventListener("keydown", this.handleEscKey);
+      },
+      beforeDestroy() {
+        document.removeEventListener("keydown", this.handleEscKey);
+      },
+      methods: {
+        async createClient() {
+          let desPersona = document.getElementById("desPersona").value;
+          let nroRuc = document.getElementById("nroRuc").value;
+          let desCorta = document.getElementById("desCorta").value;
+          let desAlterna = document.getElementById("desAlterna").value;
+
+          let response = await fetch("/nuevo-cliente", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              desPersona,
+              nroRuc,
+              desCorta,
+              desAlterna,
+            }),
+          });
+          if (response.ok) {
+            alert("Cliente creado correctamente!");
+            window.location.reload();
+          } else {
+            alert("Error al crear cliente. Intente nuevamente.");
+          }
+        },
+        async deleteClient(codigo) {
+          console.log("Deleting client", codigo);
+          let response = await fetch("/eliminar-cliente", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ codigo: codigo }),
+          });
+          if (response.ok) {
+            alert("Cliente eliminado correctamente!");
+            window.location.reload();
+          } else {
+            alert(
+              "Error. Hay registros asociados con esta persona que deben eliminarse primero."
+            );
+          }
+        },
+        async editClient(codigo) {
+          console.log("Editing client", codigo);
+        },
+        handleEscKey(event) {
+          if (event.key === "Escape") {
+            this.modalVisible = false;
+          }
+        },
+      },
+    }).mount("#app");
+  </script>
+</html>

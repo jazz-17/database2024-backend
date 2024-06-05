@@ -1,7 +1,7 @@
 import oracle from "oracledb";
 import dbConfig from "../config.json" assert { type: "json" };
 
-class Proyecto {
+class PartidasExterno {
   static async index() {
     let connection;
     try {
@@ -15,7 +15,7 @@ class Proyecto {
             'COSTOTOTAL' VALUE COSTOTOTAL
           )
         ) 
-        FROM PROYECTO
+        FROM PPARTIDA
         `
       );
       return result.rows[0][0] || "[]";
@@ -86,4 +86,4 @@ class Proyecto {
     }
   }
 }
-export default Proyecto;
+export default PartidasExterno;

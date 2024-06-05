@@ -1,5 +1,9 @@
 import express from "express";
 import Proyecto from "./controller/proyecto.js";
+import Titulo from "./controller/titulo.js";
+import CategoriaTitulo from "./controller/categoria-titulo.js";
+import PartidaInterno from "./controller/partida-interno.js";
+import PartidaExterno from "./controller/partida-externo.js";
 import Cliente from "./controller/cliente.js";
 import Empleado from "./controller/empleado.js";
 import EmpresaVenta from "./controller/empresa-venta.js";
@@ -65,15 +69,31 @@ class RoutesManager {
         proveedores: proveedores,
       });
     });
-
-    // this.app.get("/partidas", (req, res) => {
-    //   res.render(path.join(__dirname, "views", "partidas", "index")); // Path: views/partidas/index.ejs
-    // });
-    // this.app.get("/proyectos", (req, res) => {
-    //   res.render(path.join(__dirname, "views", "proyectos", "index"));
-    // });
-    this.app.get("/presupuestos", (req, res) => {
-      res.render("presupuestos/index.ejs");
+    /* RUTAS DE PROYECTOS */
+    this.app.get("/proyectos", async (req, res) => {
+      let proyectos = await Proyecto.index();
+      res.render("proyectos/index.ejs", { proyectos: proyectos });
+    });
+    /* RUTAS DE TITULOS */
+    this.app.get("/titulos", async (req, res) => {
+      let categorias = await CategoriaTitulo.index();
+      res.render("titulos/index.ejs", { categorias: categorias });
+    });
+    /* RUTAS DE PARTIDAS */
+    this.app.get("/partidas-interno", async (req, res) => {
+      let partidas = await PartidaInterno.index();
+      res.render("partidas/partidas-interno/index.ejs", { partidas: partidas });
+    });
+    this.app.get("/partidas-externo", async (req, res) => {
+      let partidas = await PartidaExterno.index();
+      res.render("partidas/partidas-externo/index.ejs", { partidas: partidas });
+    });
+    this.app.get("/nuevo-proyecto", async (req, res) => {
+      res.render("proyectos/nuevo-proyecto/index.ejs");
+    });
+    this.app.get("/presupuestos", async (req, res) => {
+      let proyectos = await Proyecto.index()
+      res.render("presupuestos/index.ejs", {clientes : "{}", proyectos});
     });
     this.app.get("/ventas", (req, res) => {
       res.render("ventas/index.ejs");

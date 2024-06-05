@@ -1,7 +1,7 @@
 import oracle from "oracledb";
 import dbConfig from "../config.json" assert { type: "json" };
 
-class Proyecto {
+class CategoriaTitulo {
   static async index() {
     let connection;
     try {
@@ -10,12 +10,20 @@ class Proyecto {
         `
         SELECT JSON_ARRAYAGG(
           JSON_OBJECT(
-            'CODPYTO' VALUE CODPYTO,
-            'NOMBPYTO' VALUE NOMBPYTO,
-            'COSTOTOTAL' VALUE COSTOTOTAL
+            'COD_CATEGORIA_TITULO' VALUE COD_CATEGORIA_TITULO,
+            'DESCRIPCION' VALUE DESCRIPCION,
+            'TITULOS' VALUE (
+              SELECT JSON_ARRAYAGG(
+                JSON_OBJECT(
+                    'COD_TITULO' VALUE COD_TITULO,
+                    'DESCRIPCION' VALUE DESCRIPCION
+                )
+              )
+              FROM TITULO WHERE COD_CATEGORIA_TITULO = ct.COD_CATEGORIA_TITULO
+            )
           )
         ) 
-        FROM PROYECTO
+        FROM CATEGORIA_TITULO  ct
         `
       );
       return result.rows[0][0] || "[]";
@@ -86,4 +94,4 @@ class Proyecto {
     }
   }
 }
-export default Proyecto;
+export default CategoriaTitulo;

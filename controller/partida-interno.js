@@ -1,7 +1,7 @@
 import oracle from "oracledb";
 import dbConfig from "../config.json" assert { type: "json" };
 
-class Proyecto {
+class PartidasInterno {
   static async index() {
     let connection;
     try {
@@ -86,4 +86,4 @@ class Proyecto {
     }
   }
 }
-export default Proyecto;
+export default PartidasInterno;

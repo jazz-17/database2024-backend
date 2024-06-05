@@ -3,8 +3,212 @@
   <%- include ('../partials/head') %>
   <body class="flex">
     <%- include ('../partials/sidebar') %>
-    <main class="flex flex-grow flex-col bg-gray-100 p-4 text-xl font-semibold">
-      <div class="flex-grow bg-yellow-200">Presupuestos</div>
+    <main
+      id="app"
+      class="flex flex-grow flex-col bg-gray-100 p-8 text-xl font-semibold"
+    >
+      <%- include ('../partials/modal') %>
+      <div class="flex flex-col">
+        <div
+          class="bg-white border border-gray rounded-md shadow-sm h-full p-8 flex flex-col gap-8"
+        >
+          <div class="flex flex-col">
+            <label class="block mb-2 text-sm font-medium text-gray-900"
+              >Selecccione un proyecto</label
+            >
+            <select
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            >
+              <option v-for="proyecto of proyectos">
+                {{ proyecto.NOMBPYTO }}
+              </option>
+            </select>
+          </div>
+          <div class="flex gap-4">
+            <table
+              class="min-h-[150px] w-full text-nowrap text-left text-sm text-gray-500"
+            >
+              <thead>
+                <tr>
+                  <th
+                    class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-600"
+                  >
+                    Item
+                  </th>
+                  <th
+                    class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-600"
+                  >
+                    Descripción
+                  </th>
+                  <th
+                    class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-600"
+                  >
+                    Und
+                  </th>
+                  <th
+                    class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-600"
+                  >
+                    Metrado
+                  </th>
+                  <th
+                    class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-600"
+                  >
+                    Precio S/.
+                  </th>
+                  <th
+                    class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-600"
+                  >
+                    Parcial S/.
+                  </th>
+                  <th
+                    class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-600"
+                  ></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="title in selectedTitles">
+                  <td class="py-2 px-4 border-b border-gray-200">01</td>
+                  <td class="py-2 px-4 border-b border-gray-200">
+                    [descripcion]
+                  </td>
+                  <td class="py-2 px-4 border-b border-gray-200"></td>
+                  <td class="py-2 px-4 border-b border-gray-200"></td>
+                  <td class="py-2 px-4 border-b border-gray-200"></td>
+                  <td class="py-2 px-4 border-b border-gray-200">$1000</td>
+                  <td class="py-2 px-4 border-b border-gray-200">
+                    <div class="flex gap-1">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="24px"
+                        viewBox="0 -960 960 960"
+                        width="24px"
+                        fill="gray"
+                      >
+                        <path
+                          d="M440-280h80v-160h160v-80H520v-160h-80v160H280v80h160v160Zm40 200q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"
+                        />
+                      </svg>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="24px"
+                        viewBox="0 -960 960 960"
+                        width="24px"
+                        fill="red"
+                      >
+                        <path
+                          d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"
+                        />
+                      </svg>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td
+                    colspan="6"
+                    class="py-2 text-center px-4 border-b border-gray-200"
+                  >
+                    <button @click="selectedTitles.push({hello:22})">
+                      <span class="font-bold flex gap-1 items-center"
+                        ><svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          height="24px"
+                          viewBox="0 -960 960 960"
+                          width="24px"
+                          fill="gray"
+                        >
+                          <path
+                            d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"
+                          /></svg
+                        >Añadir título</span
+                      >
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="flex">
+            <button class="bg-gray-600 rounded-md px-4 py-2">
+              <span class="font text-white">Guardar presupuesto</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </main>
   </body>
+  <script>
+    const { createApp } = Vue;
+    createApp({
+      data() {
+        return {
+          clientes: <%- clientes %>,
+          proyectos : <%- proyectos %>,
+          modalVisible: false,
+          selectedTitles : [],
+        };
+      },
+      mounted() {
+        console.log(this.proyectos)
+        const modalContent = document.getElementById("modal-content");
+        modalContent.innerHTML = "<h1>Modal content</h1>";
+        document.addEventListener("keydown", this.handleEscKey);
+      },
+      beforeDestroy() {
+        document.removeEventListener("keydown", this.handleEscKey);
+      },
+      methods: {
+        async createClient() {
+          let desPersona = document.getElementById("desPersona").value;
+          let nroRuc = document.getElementById("nroRuc").value;
+          let desCorta = document.getElementById("desCorta").value;
+          let desAlterna = document.getElementById("desAlterna").value;
+
+          let response = await fetch("/nuevo-cliente", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              desPersona,
+              nroRuc,
+              desCorta,
+              desAlterna,
+            }),
+          });
+          if (response.ok) {
+            alert("Cliente creado correctamente!");
+            window.location.reload();
+          } else {
+            alert("Error al crear cliente. Intente nuevamente.");
+          }
+        },
+        async deleteClient(codigo) {
+          console.log("Deleting client", codigo);
+          let response = await fetch("/eliminar-cliente", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ codigo: codigo }),
+          });
+          if (response.ok) {
+            alert("Cliente eliminado correctamente!");
+            window.location.reload();
+          } else {
+            alert(
+              "Error. Hay registros asociados con esta persona que deben eliminarse primero."
+            );
+          }
+        },
+        async editClient(codigo) {
+          console.log("Editing client", codigo);
+        },
+        handleEscKey(event) {
+          if (event.key === "Escape") {
+            this.modalVisible = false;
+          }
+        },
+      },
+    }).mount("#app");
+  </script>
 </html>
