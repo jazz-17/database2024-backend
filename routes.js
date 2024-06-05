@@ -27,8 +27,7 @@ class RoutesManager {
 
     /* RUTAS DE CLIENTES */
     this.app.get("/clientes", async (req, res) => {
-      let clientes = (await Cliente.index()) ?? {};
-      clientes = JSON.stringify(clientes);
+      let clientes = await Cliente.index();
       res.render("maestros/clientes/index.ejs", { clientes: clientes });
     });
     this.app.post("/nuevo-cliente", async (req, res) => {

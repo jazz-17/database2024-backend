@@ -7,21 +7,33 @@ class Cliente {
     try {
       connection = await oracle.getConnection(dbConfig);
       const result = await connection.execute(
-        `SELECT CODCLIENTE, DESPERSONA, NRORUC FROM CLIENTE INNER JOIN PERSONA ON CLIENTE.CODCLIENTE = PERSONA.CODPERSONA`
+        `
+        SELECT JSON_ARRAYAGG(
+          JSON_OBJECT(
+            'CODCLIENTE' VALUE CODCLIENTE,
+            'DESPERSONA' VALUE DESPERSONA,
+            'NRORUC' VALUE NRORUC
+          )
+        ) 
+        FROM CLIENTE INNER JOIN PERSONA ON CODCLIENTE = CODPERSONA
+        `
       );
-      const headers = result.metaData.map((header) => header.name);
-      const rows = result.rows;
-      const clientes = [];
-      rows.forEach((row) => {
-        let cliente = {};
-        row.forEach((column, index) => {
-          cliente[headers[index]] = column;
-        });
-        clientes.push(cliente);
-      });
+      let clientes = result.rows[0][0];
+      // const headers = result.metaData.map((header) => header.name);
+      // const rows = result.rows;
+      // const clientes = [];
+      // rows.forEach((row) => {
+      //   let cliente = {};
+      //   row.forEach((column, index) => {
+      //     cliente[headers[index]] = column;
+      //   });
+      //   clientes.push(cliente);
+      // });
+      // console.log(clientes);
       return clientes;
     } catch (err) {
       console.error("Error during fetch:", err);
+      return "[]";
     } finally {
       if (connection) {
         try {
